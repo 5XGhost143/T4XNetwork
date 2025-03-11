@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login Formular</h2>
+
+    <!-- Flash-Nachricht anzeigen, wenn vorhanden -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    {% if category == 'error' %}
+                        <li style="color: red; font-weight: bold;">❌ {{ message }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/login">
+        <label for="username">Benutzername:</label><br>
+        <input type="text" id="username" name="username" required><br><br>
+
+        <label for="password">Passwort:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <input type="submit" value="Einloggen">
+    </form>
+</body>
+</html>
