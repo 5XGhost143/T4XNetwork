@@ -1,37 +1,224 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrierung</title>
+    <title>Registration</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary-color: #10b981;
+            --secondary-hover: #059669;
+            --error-color: #ef4444;
+            --success-color: #10b981;
+            --background-color: #f9fafb;
+            --card-background: #ffffff;
+            --text-color: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .register-container {
+            background-color: var(--card-background);
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .register-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .register-header p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .messages {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .messages li {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            gap: 0.5rem;
+        }
+
+        .messages li.error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+        }
+
+        .messages li.success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .button {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .primary-button {
+            background-color: var(--secondary-color);
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .primary-button:hover {
+            background-color: var(--secondary-hover);
+        }
+
+        .button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4);
+        }
+
+        .emoji {
+            font-size: 1.2em;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .login-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.15s ease-in-out;
+        }
+
+        .login-link a:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 640px) {
+            .register-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Registrierungsformular</h2>
+    <div class="register-container">
+        <div class="register-header">
+            <h2><span class="emoji">📝</span> Registration Form</h2>
+            <p>Create your account</p>
+        </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul>
-                {% for category, message in messages %}
-                    {% if category == 'error' %}
-                        <li style="color: red; font-weight: bold;">❌ {{ message }}</li>
-                    {% elif category == 'success' %}
-                        <li style="color: green; font-weight: bold;">✅ {{ message }}</li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="messages">
+                    {% for category, message in messages %}
+                        {% if category == 'error' %}
+                            <li class="error"><span class="emoji">⚠️</span> {{ message }}</li>
+                        {% elif category == 'success' %}
+                            <li class="success"><span class="emoji">✅</span> {{ message }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
 
-    <form method="POST" action="/register">
-        <label for="username">Benutzername:</label><br>
-        <input type="text" id="username" name="username" required><br><br>
+        <form method="POST" action="/register">
+            <div class="form-group">
+                <label for="username"><span class="emoji">👤</span> Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
 
-        <label for="password">Passwort:</label><br>
-        <input type="password" id="password" name="password" required><br><br>
+            <div class="form-group">
+                <label for="password"><span class="emoji">🔒</span> Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
 
-        <input type="submit" value="Registrieren">
-    </form>
+            <button type="submit" class="button primary-button">
+                <span class="emoji">✨</span> Register
+            </button>
+        </form>
 
-    <p>Schon registriert? <a href="/login">Hier einloggen</a></p>
+        <p class="login-link">Already registered? <a href="/login"><span class="emoji">🔐</span> Login here</a></p>
+    </div>
 </body>
 </html>
