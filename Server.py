@@ -1,4 +1,3 @@
-# Imports
 import os
 import time
 import sqlite3
@@ -7,8 +6,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import re
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from datetime import timedelta
 
-# Start Code
+# Console Colors
 blue = "\033[34m"
 yellow = "\033[33m"
 white = "\033[37m"
@@ -26,20 +26,25 @@ time.sleep(1)
 print(f"{red}Attempting to start Flask server on port 5000...{reset}")
 time.sleep(1)
 secret_key_pre = os.urandom(25)
-print(f"{yellow}your Secret Key for this Session is: {secret_key_pre}{reset}")
+print(f"{yellow}Your Secret Key for this Session is: {secret_key_pre}{reset}")
 time.sleep(3)
 
+# Flask App Setup
 app = Flask(__name__)
 app.secret_key = secret_key_pre
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
+
 limiter = Limiter(get_remote_address, app=app)
 
 
+# Database Connection
 def get_db_connection():
     conn = sqlite3.connect("users.db")
     conn.row_factory = sqlite3.Row
     return conn
 
 
+# Initialize Database
 def init_db():
     conn = get_db_connection()
     with conn:
@@ -56,27 +61,28 @@ def init_db():
 init_db()
 
 
+# Input Validation
 def sanitize_input(input_str):
     return re.sub(r"[^a-zA-Z0-9]", "", input_str)
 
 
+# Default Route (Redirect based on login status)
 @app.route('/')
 def default():
     if session.get('logged_in'):
         return render_template('homepage.html')
-    else:
-        return redirect(url_for('login'))
+    return redirect(url_for('login'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
 @limiter.limit("20 per 2 minutes")
 def register():
     if request.method == 'POST':
-        username = sanitize_input(request.form['username'])
+        username = sanitize_input(request.form['username']).lower()  # Kleinbuchstaben speichern
         password = request.form['password']
 
         if len(password) < 6:
-            flash('Passwort muss mindestens 6 Zeichen lang sein!', 'error')
+            flash('Password must be at least 6 characters long!', 'error')
             return redirect(url_for('register'))
 
         hashed_password = generate_password_hash(password)
@@ -84,22 +90,20 @@ def register():
         try:
             with conn:
                 conn.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
-            flash('Registrierung erfolgreich! Du kannst dich jetzt einloggen.', 'success')
+            flash('Registration successful! You can now log in.', 'success')
             return redirect(url_for('login'))
         except sqlite3.IntegrityError:
-            flash('Benutzername existiert bereits!', 'error')
-            return redirect(url_for('register'))
+            flash('Username already exists!', 'error')
         finally:
             conn.close()
 
     return render_template('register.html')
 
-
 @app.route('/login', methods=['GET', 'POST'])
 @limiter.limit("20 per 2 minutes")
 def login():
     if request.method == 'POST':
-        username = sanitize_input(request.form['username'])
+        username = sanitize_input(request.form['username']).lower()  # Kleinbuchstaben für Vergleich
         password = request.form['password']
 
         conn = get_db_connection()
@@ -107,29 +111,34 @@ def login():
         conn.close()
 
         if user and check_password_hash(user["password"], password):
+            session.permanent = True  # Persistent session
             session['logged_in'] = True
             session['username'] = username
             return redirect(url_for('homepage'))
-        else:
-            flash('Invalid login credentials.', 'error')
-            return redirect(url_for('login'))
+
+        flash('Invalid login credentials!', 'error')
+
     return render_template('login.html')
 
 
+
+# Homepage (Only for Logged-in Users)
 @app.route('/homepage')
 @limiter.limit("500 per 2 minutes")
 def homepage():
     if session.get('logged_in'):
         return render_template('homepage.html')
-    else:
-        return redirect(url_for('login'))
-
-
-@app.route('/logout')
-def logout():
-    session.pop('logged_in', None)
     return redirect(url_for('login'))
 
 
+# Logout (Clear Session)
+@app.route('/logout')
+def logout():
+    session.clear()  # Clear entire session
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('login'))
+
+
+# Start Server
 if __name__ == '__main__':
     app.run()
