@@ -8,7 +8,6 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta
 
-# Console Colors
 blue = "\033[34m"
 yellow = "\033[33m"
 white = "\033[37m"
@@ -29,7 +28,6 @@ secret_key_pre = os.urandom(25)
 print(f"{yellow}Your Secret Key for this Session is: {secret_key_pre}{reset}")
 time.sleep(3)
 
-# Flask App Setup
 app = Flask(__name__)
 app.secret_key = secret_key_pre
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
@@ -37,7 +35,6 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 limiter = Limiter(get_remote_address, app=app)
 
 
-# Database Connection
 def get_db_connection():
     conn = sqlite3.connect("users.db")
     conn.row_factory = sqlite3.Row
@@ -103,7 +100,7 @@ def register():
 @limiter.limit("20 per 2 minutes")
 def login():
     if request.method == 'POST':
-        username = sanitize_input(request.form['username']).lower()  # Kleinbuchstaben für Vergleich
+        username = sanitize_input(request.form['username']).lower()
         password = request.form['password']
 
         conn = get_db_connection()
@@ -139,6 +136,5 @@ def logout():
     return redirect(url_for('login'))
 
 
-# Start Server
 if __name__ == '__main__':
     app.run()
