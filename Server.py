@@ -7,6 +7,7 @@ import re
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta
+import json
 
 blue = "\033[34m"
 yellow = "\033[33m"
@@ -69,6 +70,36 @@ def default():
     if session.get('logged_in'):
         return render_template('homepage.html')
     return redirect(url_for('login'))
+
+
+@app.route('/datadownload')
+@limiter.limit("10 per hour")  # Begrenzung, um Missbrauch zu vermeiden
+def datadownload():
+    if not session.get('logged_in'):
+        flash('You need to log in to download your data.', 'error')
+        return redirect(url_for('login'))
+
+    username = session.get('username')
+    conn = get_db_connection()
+    user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    conn.close()
+
+    if not user:
+        flash('User data not found.', 'error')
+        return redirect(url_for('homepage'))
+
+    user_data = {
+        "id": user["id"],
+        "username": user["username"],
+    }
+
+    response = app.response_class(
+        response=json.dumps(user_data, indent=4),
+        status=200,
+        mimetype='application/json'
+    )
+    response.headers['Content-Disposition'] = 'attachment; filename=data.json'
+    return response
 
 
 @app.route('/register', methods=['GET', 'POST'])
