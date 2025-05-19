@@ -13,6 +13,7 @@ with open("config/flask_config.json") as config_file:
     config = json.load(config_file)
 
 port = config.get("port", 5000)
+host = config.get("host", "0.0.0.0")
 
 blue = "\033[34m"
 yellow = "\033[33m"
@@ -28,7 +29,8 @@ S       E      R   R  V   V  E      R   R
 SSSS    EEEEE  R   R   VVV   EEEEE  R   R 
 {reset}""")
 time.sleep(1)
-print(f"{red}Attempting to start Flask server on port {port}...{reset}")
+print(f"{red}Attempting to start Flask server on IP -> {host}:{port}{reset}")
+print(f"{red}Please wait...{reset}")
 time.sleep(1)
 secret_key_pre = os.urandom(25)
 print(f"{yellow}Your Secret Key for this Web Session is: {secret_key_pre}{reset}")
@@ -173,4 +175,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(port=port)
+    app.run(host=host, port=port)
