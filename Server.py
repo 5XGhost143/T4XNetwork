@@ -4,8 +4,6 @@ import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 from datetime import timedelta
 import json
 
@@ -39,8 +37,6 @@ time.sleep(3)
 app = Flask(__name__)
 app.secret_key = secret_key_pre
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
-
-limiter = Limiter(get_remote_address, app=app)
 
 
 def get_db_connection():
@@ -80,7 +76,6 @@ def default():
 
 
 @app.route('/datadownload')
-@limiter.limit("10 per hour")  # Begrenzung, um Missbrauch zu vermeiden
 def datadownload():
     if not session.get('logged_in'):
         flash('You need to log in to download your data.', 'error')
@@ -110,7 +105,6 @@ def datadownload():
 
 
 @app.route('/register', methods=['GET', 'POST'])
-@limiter.limit("20 per 2 minutes")
 def register():
     if request.method == 'POST':
         username = sanitize_input(request.form['username']).lower()  # Kleinbuchstaben speichern
@@ -135,7 +129,6 @@ def register():
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("20 per 2 minutes")
 def login():
     if request.method == 'POST':
         username = sanitize_input(request.form['username']).lower()
@@ -159,7 +152,6 @@ def login():
 
 # Homepage (Only for Logged-in Users)
 @app.route('/homepage')
-@limiter.limit("500 per 2 minutes")
 def homepage():
     if session.get('logged_in'):
         return render_template('homepage.html')
