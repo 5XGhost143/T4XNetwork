@@ -9,6 +9,11 @@ from flask_limiter.util import get_remote_address
 from datetime import timedelta
 import json
 
+with open("config/flask_config.json") as config_file:
+    config = json.load(config_file)
+
+port = config.get("port", 5000)
+
 blue = "\033[34m"
 yellow = "\033[33m"
 white = "\033[37m"
@@ -23,7 +28,7 @@ S       E      R   R  V   V  E      R   R
 SSSS    EEEEE  R   R   VVV   EEEEE  R   R 
 {reset}""")
 time.sleep(1)
-print(f"{red}Attempting to start Flask server on port 5000...{reset}")
+print(f"{red}Attempting to start Flask server on port {port}...{reset}")
 time.sleep(1)
 secret_key_pre = os.urandom(25)
 print(f"{yellow}Your Secret Key for this Session is: {secret_key_pre}{reset}")
@@ -168,4 +173,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=port)
