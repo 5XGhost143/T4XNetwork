@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import re
 from datetime import timedelta
 import json
+from markupsafe import escape
 
 with open("config/flask_config.json") as config_file:
     config = json.load(config_file)
@@ -39,6 +40,19 @@ app.secret_key = secret_key_pre
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 
 
+@app.after_request
+def set_csp(response):
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' https://cdnjs.cloudflare.com https://ajax.googleapis.com; "
+        "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data:; "
+        "object-src 'none'; "
+        "frame-ancestors 'none';"
+    )
+    return response
+
 def get_db_connection():
     conn = sqlite3.connect("t4xnetwork_data.db")
     conn.row_factory = sqlite3.Row
@@ -61,10 +75,8 @@ def init_db():
 
 init_db()
 
-
-# Input Validation
-def sanitize_input(input_str):
-    return re.sub(r"[^a-zA-Z0-9]", "", input_str)
+def sanitize_input(user_input):
+    return escape(user_input)
 
 
 # Default Route (Redirect based on login status)
