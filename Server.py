@@ -40,7 +40,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 
 
 def get_db_connection():
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect("t4xnetwork_data.db")
     conn.row_factory = sqlite3.Row
     return conn
 
