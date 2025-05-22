@@ -44,7 +44,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 def set_csp(response):
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
-        "script-src 'self' https://cdnjs.cloudflare.com https://ajax.googleapis.com; "
+        "script-src 'self'; "
         "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data:; "
