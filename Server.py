@@ -162,7 +162,6 @@ def login():
 
 
 
-# Homepage (Only for Logged-in Users)
 @app.route('/homepage')
 def homepage():
     if session.get('logged_in'):
@@ -170,10 +169,9 @@ def homepage():
     return redirect(url_for('login'))
 
 
-# Logout (Clear Session)
 @app.route('/logout')
 def logout():
-    session.clear()  # Clear entire session
+    session.clear()  
     flash('You have been logged out.', 'success')
     return redirect(url_for('login'))
 
