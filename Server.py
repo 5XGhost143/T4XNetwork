@@ -84,7 +84,7 @@ def sanitize_input(user_input):
 def default():
     if session.get('logged_in'):
         return render_template('homepage.html')
-    return redirect(url_for('login'))
+    return redirect(url_for('landing'))
 
 
 @app.route('/datadownload')
@@ -114,6 +114,10 @@ def datadownload():
     )
     response.headers['Content-Disposition'] = 'attachment; filename=data.json'
     return response
+
+@app.route('/landing')
+def landing():
+    return render_template('landing.html')
 
 
 @app.route('/register', methods=['GET', 'POST'])
