@@ -1,10 +1,10 @@
 import os
 import time
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
-from datetime import timedelta
+from datetime import timedelta, datetime
 import json
 from markupsafe import escape
 
@@ -39,27 +39,12 @@ app = Flask(__name__)
 app.secret_key = secret_key_pre
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 
-
-@app.after_request
-def set_csp(response):
-    response.headers['Content-Security-Policy'] = (
-        "default-src 'self'; "
-        "script-src 'self'; "
-        "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; "
-        "font-src 'self' https://fonts.gstatic.com; "
-        "img-src 'self' data:; "
-        "object-src 'none'; "
-        "frame-ancestors 'none';"
-    )
-    return response
-
 def get_db_connection():
     conn = sqlite3.connect("t4xnetwork_data.db")
     conn.row_factory = sqlite3.Row
     return conn
 
 
-# Initialize Database
 def init_db():
     conn = get_db_connection()
     with conn:
@@ -68,6 +53,15 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS posts (
+                postid INTEGER PRIMARY KEY AUTOINCREMENT,
+                userid INTEGER NOT NULL,
+                posttext TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (userid) REFERENCES users (id)
             )
         """)
     conn.close()
@@ -79,7 +73,6 @@ def sanitize_input(user_input):
     return escape(user_input)
 
 
-# Default Route (Redirect based on login status)
 @app.route('/')
 def default():
     if session.get('logged_in'):
@@ -96,6 +89,14 @@ def datadownload():
     username = session.get('username')
     conn = get_db_connection()
     user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    
+    posts = conn.execute("""
+        SELECT postid, posttext, created_at 
+        FROM posts 
+        WHERE userid = ? 
+        ORDER BY created_at DESC
+    """, (user["id"],)).fetchall()
+    
     conn.close()
 
     if not user:
@@ -105,6 +106,7 @@ def datadownload():
     user_data = {
         "id": user["id"],
         "username": user["username"],
+        "posts": [{"postid": post["postid"], "posttext": post["posttext"], "created_at": post["created_at"]} for post in posts]
     }
 
     response = app.response_class(
@@ -116,11 +118,87 @@ def datadownload():
     return response
 
 
+@app.route('/create_post', methods=['POST'])
+def create_post():
+    if not session.get('logged_in'):
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+    
+    data = request.get_json()
+    posttext = data.get('posttext', '').strip()
+    
+    if not posttext:
+        return jsonify({'success': False, 'message': 'Post text cannot be empty'}), 400
+    
+    if len(posttext) > 500:
+        return jsonify({'success': False, 'message': 'Post text too long (max 500 characters)'}), 400
+    
+    username = session.get('username')
+    conn = get_db_connection()
+    
+    user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    
+    if not user:
+        conn.close()
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+    
+    try:
+        with conn:
+            cursor = conn.execute(
+                "INSERT INTO posts (userid, posttext) VALUES (?, ?)",
+                (user["id"], sanitize_input(posttext))
+            )
+            postid = cursor.lastrowid
+        
+        conn.close()
+        return jsonify({
+            'success': True, 
+            'message': 'Post created successfully',
+            'postid': postid
+        })
+    except Exception as e:
+        conn.close()
+        return jsonify({'success': False, 'message': 'Error creating post'}), 500
+
+
+@app.route('/get_posts')
+def get_posts():
+    if not session.get('logged_in'):
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+    
+    username = session.get('username')
+    conn = get_db_connection()
+    
+    user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    
+    if not user:
+        conn.close()
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+    
+    posts = conn.execute("""
+        SELECT postid, posttext, created_at 
+        FROM posts 
+        WHERE userid = ? 
+        ORDER BY created_at DESC
+    """, (user["id"],)).fetchall()
+    
+    conn.close()
+    
+    posts_data = [
+        {
+            'postid': post['postid'],
+            'posttext': post['posttext'],
+            'created_at': post['created_at']
+        }
+        for post in posts
+    ]
+    
+    return jsonify({'success': True, 'posts': posts_data})
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = sanitize_input(request.form['username']).lower()  # Kleinbuchstaben speichern
+        username = sanitize_input(request.form['username']).lower()
         password = request.form['password']
 
         if len(password) < 6:
@@ -152,7 +230,7 @@ def login():
         conn.close()
 
         if user and check_password_hash(user["password"], password):
-            session.permanent = True  # Persistent session
+            session.permanent = True
             session['logged_in'] = True
             session['username'] = username
             return redirect(url_for('homepage'))

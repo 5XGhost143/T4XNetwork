@@ -4,10 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T4XNetwork | Home</title>
+    <link rel="stylesheet" href="../static/css/homepage.css">
 </head>
 <body>
-    <h1>HALLO, {{ session['username'] }}!</h1>  <!-- Hier wird der Benutzername angezeigt -->
-    <a href="/logout">Logout</a><br>
-    <a href="/datadownload">Download your Data</a>
+    <div class="background"></div>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-icon plus" id="openSpotlight">
+            <span class="plus-icon">+</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="welcome-text">
+                Hello, <span class="username">{{ session['username'] }}</span>!
+            </div>
+            <div class="nav-links">
+                <a href="/datadownload" class="nav-link">📊 Download your data</a>
+                <a href="/logout" class="nav-link">🚪 Logout</a>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="placeholder-content">
+                <h2>Not implemented yet.</h2>
+                <p>Example Text</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="spotlight-overlay" id="spotlightOverlay">
+        <div class="spotlight-modal">
+            <div class="spotlight-header">
+                <div class="spotlight-title">Post Creation</div>
+                <div class="spotlight-subtitle">Share your Ideas!</div>
+            </div>
+            <div class="spotlight-content">
+                <div class="message" id="messageBox"></div>
+                <textarea 
+                    class="post-textarea" 
+                    id="postTextarea" 
+                    placeholder="What do you want to share with the community?"
+                    maxlength="500"
+                ></textarea>
+                <div class="character-count" id="characterCount">0 / 500</div>
+                <div class="spotlight-actions">
+                    <button class="spotlight-btn cancel" id="cancelBtn">Cancel</button>
+                    <button class="spotlight-btn post" id="postBtn">
+                        <span class="loading-spinner"></span>
+                        <span class="btn-text">Post</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script src="../static/js/homepage.js"></script>
 </body>
 </html>
