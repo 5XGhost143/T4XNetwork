@@ -15,6 +15,8 @@ TODO List:
 
 ✘ User Profiles
 
+✘ Foryou Page
+
 ✓ Modern UI
 
 ✘ Search with Posts, User Profiles
