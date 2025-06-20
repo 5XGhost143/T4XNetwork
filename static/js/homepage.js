@@ -106,8 +106,8 @@
                 if (data.success) {
                     showMessage('Post created! 🎉', 'success');
                     setTimeout(() => {
-                        closeModal();
-                    }, 2000);
+                        window.location.href = `/post/${data.postid}`;
+                    }, 150);
                 } else {
                     showMessage(data.message || 'Error while creating Post:', 'error');
                 }

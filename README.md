@@ -4,3 +4,12 @@ https://ghost143.de
 
 
 MADE BY 5X Development
+
+TODO List:
+
+✓ Posts Site (url/post/<postid>)
+✓ Backend (100%)
+✘ User Profiles
+✓ Modern UI
+✘ Search with Posts, User Profiles
+✓ Create Posts

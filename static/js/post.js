@@ -49,5 +49,5 @@
                 minute: '2-digit'
             };
             
-            dateElement.textContent = date.toLocaleDateString('de-DE', options);
+            dateElement.textContent = date.toLocaleDateString('en-US', options);
         });
