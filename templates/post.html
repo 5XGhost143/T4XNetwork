@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T4XNetwork | Post #{{ post.postid }}</title>
     <link rel="stylesheet" href="../static/css/post.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="background"></div>
@@ -49,14 +50,14 @@
             </div>
         </div>
     </div>
-    <div class="toast" id="toast">Like toggled!</div>
 
-    <script src="../static/js/post.js"></script>
+    <div class="toast" id="toast">Like toggled!</div>
 
     <script>
         let isLiked = {{ 'true' if user_liked else 'false' }};
         let currentLikeCount = {{ post.like_count }};
         const postId = {{ post.postid }};
     </script>
+    <script src="../static/js/post.js"></script>
 </body>
 </html>
