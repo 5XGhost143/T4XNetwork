@@ -64,9 +64,9 @@
             postBtn.disabled = loading;
             
             if (loading) {
-                postBtn.querySelector('.btn-text').textContent = 'Wird gepostet...';
+                postBtn.querySelector('.btn-text').textContent = 'Posting...';
             } else {
-                postBtn.querySelector('.btn-text').textContent = 'Posten';
+                postBtn.querySelector('.btn-text').textContent = 'Post';
             }
         }
 
@@ -78,12 +78,12 @@
             const postText = postTextarea.value.trim();
             
             if (!postText) {
-                showMessage('Bitte gib einen Text ein!', 'error');
+                showMessage('Please enter a valid Text!', 'error');
                 return;
             }
 
             if (postText.length > 500) {
-                showMessage('Der Text ist zu lang (max. 500 Zeichen)!', 'error');
+                showMessage('the text is too long (max. 500)', 'error');
                 return;
             }
 
@@ -104,16 +104,16 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    showMessage('Post erfolgreich erstellt! 🎉', 'success');
+                    showMessage('Post created! 🎉', 'success');
                     setTimeout(() => {
                         closeModal();
                     }, 2000);
                 } else {
-                    showMessage(data.message || 'Fehler beim Erstellen des Posts', 'error');
+                    showMessage(data.message || 'Error while creating Post:', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('Netzwerkfehler beim Erstellen des Posts', 'error');
+                showMessage('Backend Server is not responding...', 'error');
             } finally {
                 setPostButtonLoading(false);
             }
