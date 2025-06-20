@@ -64,7 +64,7 @@ def init_db():
                 FOREIGN KEY (userid) REFERENCES users (id)
             )
         """)
-        # Neue Likes-Tabelle
+
         conn.execute("""
             CREATE TABLE IF NOT EXISTS likes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -109,7 +109,6 @@ def datadownload():
         ORDER BY created_at DESC
     """, (user["id"],)).fetchall()
     
-    # Likes des Users hinzufügen
     likes = conn.execute("""
         SELECT p.postid, p.posttext, l.created_at as liked_at
         FROM likes l
@@ -226,7 +225,6 @@ def view_post(postid):
     username = session.get('username')
     conn = get_db_connection()
     
-    # Post mit Like-Count abrufen
     post = conn.execute("""
         SELECT p.postid, p.posttext, p.created_at, u.username,
                COUNT(l.id) as like_count
@@ -242,7 +240,6 @@ def view_post(postid):
         flash('Post not found.', 'error')
         return redirect(url_for('homepage'))
     
-    # Prüfen ob der aktuelle User den Post geliked hat
     current_user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
     user_liked = False
     
@@ -271,19 +268,16 @@ def toggle_like():
     username = session.get('username')
     conn = get_db_connection()
     
-    # User ID abrufen
     user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
     if not user:
         conn.close()
         return jsonify({'success': False, 'message': 'User not found'}), 404
     
-    # Prüfen ob Post existiert
     post_exists = conn.execute("SELECT postid FROM posts WHERE postid = ?", (postid,)).fetchone()
     if not post_exists:
         conn.close()
         return jsonify({'success': False, 'message': 'Post not found'}), 404
     
-    # Prüfen ob User bereits geliked hat
     existing_like = conn.execute("""
         SELECT id FROM likes WHERE postid = ? AND userid = ?
     """, (postid, user["id"])).fetchone()
@@ -291,19 +285,16 @@ def toggle_like():
     try:
         with conn:
             if existing_like:
-                # Like entfernen
                 conn.execute("DELETE FROM likes WHERE postid = ? AND userid = ?", 
                            (postid, user["id"]))
                 liked = False
                 message = "Like removed"
             else:
-                # Like hinzufügen
                 conn.execute("INSERT INTO likes (postid, userid) VALUES (?, ?)", 
                            (postid, user["id"]))
                 liked = True
                 message = "Post liked!"
         
-        # Neue Like-Anzahl abrufen
         like_count = conn.execute("""
             SELECT COUNT(*) as count FROM likes WHERE postid = ?
         """, (postid,)).fetchone()["count"]
@@ -330,13 +321,11 @@ def get_like_status(postid):
     username = session.get('username')
     conn = get_db_connection()
     
-    # User ID abrufen
     user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
     if not user:
         conn.close()
         return jsonify({'success': False, 'message': 'User not found'}), 404
     
-    # Like-Status und -Anzahl abrufen
     like_count = conn.execute("""
         SELECT COUNT(*) as count FROM likes WHERE postid = ?
     """, (postid,)).fetchone()["count"]
