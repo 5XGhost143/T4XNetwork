@@ -195,6 +195,30 @@ def get_posts():
     return jsonify({'success': True, 'posts': posts_data})
 
 
+@app.route('/post/<int:postid>')
+def view_post(postid):
+    if not session.get('logged_in'):
+        flash('You need to log in to view posts.', 'error')
+        return redirect(url_for('login'))
+    
+    conn = get_db_connection()
+    
+    post = conn.execute("""
+        SELECT p.postid, p.posttext, p.created_at, u.username 
+        FROM posts p 
+        JOIN users u ON p.userid = u.id 
+        WHERE p.postid = ?
+    """, (postid,)).fetchone()
+    
+    conn.close()
+    
+    if not post:
+        flash('Post not found.', 'error')
+        return redirect(url_for('homepage'))
+    
+    return render_template('post.html', post=post)
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
