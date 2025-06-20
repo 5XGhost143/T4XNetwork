@@ -35,24 +35,28 @@
                     </div>
                     <div class="post-id">ID: {{ post.postid }}</div>
                 </div>
-                
+
                 <div class="post-content">
                     <p>{{ post.posttext }}</p>
                 </div>
-                
+
                 <div class="post-actions">
-                    <button class="action-btn share" onclick="sharePost()">
-                        <span>🔗</span>
-                        Share
-                    </button>
-                    <button class="action-btn copy" onclick="copyText()">
-                        <span>📋</span>
-                        Copy Text
+                    <button class="like-btn" id="likeBtn" onclick="toggleLike()">
+                        <span class="heart-icon">❤️</span>
+                        <span class="like-count" id="likeCount">{{ post.like_count }}</span>
                     </button>
                 </div>
             </div>
         </div>
     </div>
+    <div class="toast" id="toast">Like toggled!</div>
+
     <script src="../static/js/post.js"></script>
+
+    <script>
+        let isLiked = {{ 'true' if user_liked else 'false' }};
+        let currentLikeCount = {{ post.like_count }};
+        const postId = {{ post.postid }};
+    </script>
 </body>
 </html>

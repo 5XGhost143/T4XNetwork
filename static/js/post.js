@@ -1,53 +1,72 @@
-        function sharePost() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'T4XNetwork Post #{{ post.postid }}',
-                    text: '{{ post.posttext }}',
-                    url: window.location.href
-                });
+        const likeBtn = document.getElementById('likeBtn');
+        const likeCount = document.getElementById('likeCount');
+        const toast = document.getElementById('toast');
+
+        updateLikeButton();
+
+        function updateLikeButton() {
+            if (isLiked) {
+                likeBtn.classList.add('liked');
             } else {
-                navigator.clipboard.writeText(window.location.href).then(() => {
-                    showToast('URL copied to clipboard!', 'success');
+                likeBtn.classList.remove('liked');
+            }
+            likeCount.textContent = currentLikeCount;
+        }
+
+        async function toggleLike() {
+            likeBtn.disabled = true;
+
+            try {
+                const response = await fetch('/toggle_like', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        postid: postId
+                    })
                 });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    isLiked = data.liked;
+                    currentLikeCount = data.like_count;
+                    updateLikeButton();
+                    showToast(data.message);
+                } else {
+                    showToast('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error toggling like:', error);
+                showToast('Error occurred while toggling like');
+            } finally {
+                likeBtn.disabled = false;
             }
         }
 
-        function copyText() {
-            navigator.clipboard.writeText('{{ post.posttext }}').then(() => {
-                showToast('Text copied to clipboard!', 'success');
-            });
-        }
-
-        function showToast(message, type) {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+        function showToast(message) {
             toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 100);
+            toast.classList.add('show');
             
             setTimeout(() => {
                 toast.classList.remove('show');
-                setTimeout(() => {
-                    document.body.removeChild(toast);
-                }, 300);
             }, 3000);
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const dateElement = document.querySelector('.post-date');
-            const dateStr = dateElement.textContent;
-            const date = new Date(dateStr);
-            
-            const options = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
-            
-            dateElement.textContent = date.toLocaleDateString('en-US', options);
-        });
+        async function refreshLikeStatus() {
+            try {
+                const response = await fetch(`/get_like_status/${postId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    isLiked = data.liked;
+                    currentLikeCount = data.like_count;
+                    updateLikeButton();
+                }
+            } catch (error) {
+                console.error('Error refreshing like status:', error);
+            }
+        }
+
+        refreshLikeStatus();

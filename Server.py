@@ -64,6 +64,18 @@ def init_db():
                 FOREIGN KEY (userid) REFERENCES users (id)
             )
         """)
+        # Neue Likes-Tabelle
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS likes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                postid INTEGER NOT NULL,
+                userid INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (postid) REFERENCES posts (postid) ON DELETE CASCADE,
+                FOREIGN KEY (userid) REFERENCES users (id) ON DELETE CASCADE,
+                UNIQUE(postid, userid)
+            )
+        """)
     conn.close()
 
 
@@ -97,6 +109,15 @@ def datadownload():
         ORDER BY created_at DESC
     """, (user["id"],)).fetchall()
     
+    # Likes des Users hinzufügen
+    likes = conn.execute("""
+        SELECT p.postid, p.posttext, l.created_at as liked_at
+        FROM likes l
+        JOIN posts p ON l.postid = p.postid
+        WHERE l.userid = ?
+        ORDER BY l.created_at DESC
+    """, (user["id"],)).fetchall()
+    
     conn.close()
 
     if not user:
@@ -106,7 +127,8 @@ def datadownload():
     user_data = {
         "id": user["id"],
         "username": user["username"],
-        "posts": [{"postid": post["postid"], "posttext": post["posttext"], "created_at": post["created_at"]} for post in posts]
+        "posts": [{"postid": post["postid"], "posttext": post["posttext"], "created_at": post["created_at"]} for post in posts],
+        "liked_posts": [{"postid": like["postid"], "posttext": like["posttext"], "liked_at": like["liked_at"]} for like in likes]
     }
 
     response = app.response_class(
@@ -201,22 +223,135 @@ def view_post(postid):
         flash('You need to log in to view posts.', 'error')
         return redirect(url_for('login'))
     
+    username = session.get('username')
     conn = get_db_connection()
     
+    # Post mit Like-Count abrufen
     post = conn.execute("""
-        SELECT p.postid, p.posttext, p.created_at, u.username 
+        SELECT p.postid, p.posttext, p.created_at, u.username,
+               COUNT(l.id) as like_count
         FROM posts p 
         JOIN users u ON p.userid = u.id 
+        LEFT JOIN likes l ON p.postid = l.postid
         WHERE p.postid = ?
+        GROUP BY p.postid
     """, (postid,)).fetchone()
     
-    conn.close()
-    
     if not post:
+        conn.close()
         flash('Post not found.', 'error')
         return redirect(url_for('homepage'))
     
-    return render_template('post.html', post=post)
+    # Prüfen ob der aktuelle User den Post geliked hat
+    current_user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    user_liked = False
+    
+    if current_user:
+        like_check = conn.execute("""
+            SELECT id FROM likes WHERE postid = ? AND userid = ?
+        """, (postid, current_user["id"])).fetchone()
+        user_liked = like_check is not None
+    
+    conn.close()
+    
+    return render_template('post.html', post=post, user_liked=user_liked)
+
+
+@app.route('/toggle_like', methods=['POST'])
+def toggle_like():
+    if not session.get('logged_in'):
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+    
+    data = request.get_json()
+    postid = data.get('postid')
+    
+    if not postid:
+        return jsonify({'success': False, 'message': 'Post ID required'}), 400
+    
+    username = session.get('username')
+    conn = get_db_connection()
+    
+    # User ID abrufen
+    user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+    
+    # Prüfen ob Post existiert
+    post_exists = conn.execute("SELECT postid FROM posts WHERE postid = ?", (postid,)).fetchone()
+    if not post_exists:
+        conn.close()
+        return jsonify({'success': False, 'message': 'Post not found'}), 404
+    
+    # Prüfen ob User bereits geliked hat
+    existing_like = conn.execute("""
+        SELECT id FROM likes WHERE postid = ? AND userid = ?
+    """, (postid, user["id"])).fetchone()
+    
+    try:
+        with conn:
+            if existing_like:
+                # Like entfernen
+                conn.execute("DELETE FROM likes WHERE postid = ? AND userid = ?", 
+                           (postid, user["id"]))
+                liked = False
+                message = "Like removed"
+            else:
+                # Like hinzufügen
+                conn.execute("INSERT INTO likes (postid, userid) VALUES (?, ?)", 
+                           (postid, user["id"]))
+                liked = True
+                message = "Post liked!"
+        
+        # Neue Like-Anzahl abrufen
+        like_count = conn.execute("""
+            SELECT COUNT(*) as count FROM likes WHERE postid = ?
+        """, (postid,)).fetchone()["count"]
+        
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'liked': liked,
+            'like_count': like_count,
+            'message': message
+        })
+        
+    except Exception as e:
+        conn.close()
+        return jsonify({'success': False, 'message': 'Error toggling like'}), 500
+
+
+@app.route('/get_like_status/<int:postid>')
+def get_like_status(postid):
+    if not session.get('logged_in'):
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+    
+    username = session.get('username')
+    conn = get_db_connection()
+    
+    # User ID abrufen
+    user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+    
+    # Like-Status und -Anzahl abrufen
+    like_count = conn.execute("""
+        SELECT COUNT(*) as count FROM likes WHERE postid = ?
+    """, (postid,)).fetchone()["count"]
+    
+    user_liked = conn.execute("""
+        SELECT id FROM likes WHERE postid = ? AND userid = ?
+    """, (postid, user["id"])).fetchone() is not None
+    
+    conn.close()
+    
+    return jsonify({
+        'success': True,
+        'liked': user_liked,
+        'like_count': like_count
+    })
 
 
 @app.route('/register', methods=['GET', 'POST'])
