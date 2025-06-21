@@ -88,7 +88,7 @@ def sanitize_input(user_input):
 @app.route('/')
 def default():
     if session.get('logged_in'):
-        return render_template('homepage.html')
+        return render_template('home.html')
     return redirect(url_for('login'))
 
 
@@ -388,10 +388,10 @@ def login():
 
 
 
-@app.route('/homepage')
+@app.route('/home')
 def homepage():
     if session.get('logged_in'):
-        return render_template('homepage.html')
+        return render_template('home.html')
     return redirect(url_for('login'))
 
 
