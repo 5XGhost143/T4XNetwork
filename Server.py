@@ -130,10 +130,10 @@ def render_homepage():
 
 
 @app.route('/')
-def default():
-    if session.get('logged_in'):
-        return render_template('home.html')
-    return redirect(url_for('login'))
+def defaultroute():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    return render_homepage()
 
 @app.errorhandler(404)
 def page_not_found(e):
