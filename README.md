@@ -7,7 +7,7 @@ MADE BY 5X Development
 
 TODO List:
 
-✘ Last Posts in Home
+✓ Last Posts in Home
 
 ✓ Posts Site (url/post/<postid>)
 

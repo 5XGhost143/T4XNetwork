@@ -89,6 +89,46 @@ def sanitize_input(user_input):
     return escape(user_input)
 
 
+def render_homepage():
+    username = session.get('username')
+    conn = get_db_connection()
+    
+    current_user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    
+    posts = conn.execute("""
+        SELECT p.postid, p.posttext, p.created_at, u.username,
+               COUNT(l.id) as like_count
+        FROM posts p 
+        JOIN users u ON p.userid = u.id 
+        LEFT JOIN likes l ON p.postid = l.postid
+        GROUP BY p.postid, p.posttext, p.created_at, u.username
+        ORDER BY p.created_at DESC
+        LIMIT 5
+    """).fetchall()
+    
+    posts_with_like_status = []
+    for post in posts:
+        user_liked = False
+        if current_user:
+            like_check = conn.execute("""
+                SELECT id FROM likes WHERE postid = ? AND userid = ?
+            """, (post["postid"], current_user["id"])).fetchone()
+            user_liked = like_check is not None
+        
+        posts_with_like_status.append({
+            'postid': post['postid'],
+            'posttext': post['posttext'],
+            'created_at': post['created_at'],
+            'username': post['username'],
+            'like_count': post['like_count'],
+            'user_liked': user_liked
+        })
+    
+    conn.close()
+    
+    return render_template('home.html', posts=posts_with_like_status)
+
+
 @app.route('/')
 def default():
     if session.get('logged_in'):
@@ -98,7 +138,7 @@ def default():
 @app.errorhandler(404)
 def page_not_found(e):
     if session.get('logged_in'):
-        return render_template('home.html'), 404
+        return render_homepage(), 404
     return redirect(url_for('login'))
 
 @app.route('/datadownload')
@@ -395,53 +435,11 @@ def login():
 
     return render_template('login.html')
 
-
-
 @app.route('/home')
 def homepage():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    
-    username = session.get('username')
-    conn = get_db_connection()
-    
-    # Get current user info
-    current_user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
-    
-    # Get the latest posts from all users with like counts
-    posts = conn.execute("""
-        SELECT p.postid, p.posttext, p.created_at, u.username,
-               COUNT(l.id) as like_count
-        FROM posts p 
-        JOIN users u ON p.userid = u.id 
-        LEFT JOIN likes l ON p.postid = l.postid
-        GROUP BY p.postid, p.posttext, p.created_at, u.username
-        ORDER BY p.created_at DESC
-        LIMIT 5
-    """).fetchall()
-    
-    # Check which posts the current user has liked
-    posts_with_like_status = []
-    for post in posts:
-        user_liked = False
-        if current_user:
-            like_check = conn.execute("""
-                SELECT id FROM likes WHERE postid = ? AND userid = ?
-            """, (post["postid"], current_user["id"])).fetchone()
-            user_liked = like_check is not None
-        
-        posts_with_like_status.append({
-            'postid': post['postid'],
-            'posttext': post['posttext'],
-            'created_at': post['created_at'],
-            'username': post['username'],
-            'like_count': post['like_count'],
-            'user_liked': user_liked
-        })
-    
-    conn.close()
-    
-    return render_template('home.html', posts=posts_with_like_status)
+    return render_homepage()
 
 
 @app.route('/logout')
