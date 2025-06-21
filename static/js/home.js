@@ -7,7 +7,6 @@ const characterCount = document.getElementById('characterCount');
 const messageBox = document.getElementById('messageBox');
 const toast = document.getElementById('toast');
 
-// Spotlight Modal Functions
 openSpotlightBtn.addEventListener('click', () => {
     spotlightOverlay.classList.add('show');
     setTimeout(() => postTextarea.focus(), 300);
@@ -108,7 +107,7 @@ postBtn.addEventListener('click', async () => {
         if (data.success) {
             showMessage('Post created! 🎉', 'success');
             setTimeout(() => {
-                location.reload(); // Reload to show new post
+                location.reload();
             }, 1000);
         } else {
             showMessage(data.message || 'Error while creating Post:', 'error');
@@ -128,7 +127,6 @@ postTextarea.addEventListener('keydown', (e) => {
     }
 });
 
-// Like Functions
 async function toggleLike(postId, likeButton) {
     likeButton.disabled = true;
 
@@ -146,18 +144,15 @@ async function toggleLike(postId, likeButton) {
         const data = await response.json();
 
         if (data.success) {
-            // Update the like button appearance
             if (data.liked) {
                 likeButton.classList.add('liked');
             } else {
                 likeButton.classList.remove('liked');
             }
             
-            // Update the like count
             const likeCountElement = likeButton.querySelector('.like-count');
             likeCountElement.textContent = data.like_count;
             
-            // Show toast notification
             showToast(data.message);
         } else {
             showToast('Error: ' + data.message);
@@ -179,5 +174,4 @@ function showToast(message) {
     }, 3000);
 }
 
-// Initialize character count
 updateCharacterCount();
