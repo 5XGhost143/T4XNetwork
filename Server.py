@@ -1,7 +1,7 @@
 import os
 import time
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
 from datetime import timedelta, datetime
@@ -38,6 +38,10 @@ time.sleep(3)
 app = Flask(__name__)
 app.secret_key = secret_key_pre
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 def get_db_connection():
     conn = sqlite3.connect("t4xnetwork_data.db")
@@ -91,6 +95,11 @@ def default():
         return render_template('home.html')
     return redirect(url_for('login'))
 
+@app.errorhandler(404)
+def page_not_found(e):
+    if session.get('logged_in'):
+        return render_template('home.html'), 404
+    return redirect(url_for('login'))
 
 @app.route('/datadownload')
 def datadownload():
