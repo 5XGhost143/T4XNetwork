@@ -180,7 +180,6 @@ def create_post():
         conn.close()
         return jsonify({'success': False, 'message': 'Error creating post'}), 500
 
-
 @app.route('/get_posts')
 def get_posts():
     if not session.get('logged_in'):
