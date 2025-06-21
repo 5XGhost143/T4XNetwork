@@ -500,4 +500,31 @@
             .spotlight-header {
                 padding: 20px 20px 0;
             }
+
+        .posts-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
         }
+
+        .posts-feed::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .posts-feed::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .posts-feed::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .posts-feed.posts-feed::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+        }
+    }

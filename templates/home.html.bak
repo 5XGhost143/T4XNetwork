@@ -33,44 +33,12 @@
         </div>
 
         <div class="content-area">
-            {% if posts %}
-                <div class="posts-feed">
-                    {% for post in posts %}
-                        <div class="post-card">
-                            <div class="post-header">
-                                <div class="post-meta">
-                                    <div class="post-username">@{{ post.username }}</div>
-                                    <div class="post-date">{{ post.created_at }}</div>
-                                </div>
-                                <div class="post-id">ID: {{ post.postid }}</div>
-                            </div>
-
-                            <div class="post-content">
-                                <p class="post-text">{{ post.posttext }}</p>
-                            </div>
-
-                            <div class="post-actions">
-                                <button class="like-btn {{ 'liked' if post.user_liked else '' }}" 
-                                        onclick="toggleLike({{ post.postid }}, this)">
-                                    <span class="heart-icon">❤️</span>
-                                    <span class="like-count">{{ post.like_count }}</span>
-                                </button>
-                                <a href="/post/{{ post.postid }}" class="view-post-btn">View Full Post</a>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="no-posts">
-                    <h3>No Posts Yet</h3>
-                    <p>Be the first to share something with the community!</p>
-                </div>
-            {% endif %}
+            <div class="placeholder-content">
+                <h2>Not implemented yet.</h2>
+                <p>Example Text</p>
+            </div>
         </div>
     </div>
-
-    <!-- Toast notification -->
-    <div class="toast" id="toast">Like toggled!</div>
 
     <div class="spotlight-overlay" id="spotlightOverlay">
         <div class="spotlight-modal">
