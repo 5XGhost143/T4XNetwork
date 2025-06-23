@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>T4XNetwork | Home</title>
+    <title>T4XNetwork | Account</title>
     <link rel="stylesheet" href="../static/css/home.css">
+    <link rel="stylesheet" href="../static/css/account.css">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 </head>
 <body>
@@ -29,19 +30,18 @@
 
     <div class="main-content">
         <div class="header">
-            <div class="welcome-text">
-                Whats Up, <span class="username">{{ session['username'] }}</span>!
-            </div>
-            <div class="nav-links">
-                <a href="/datadownload" class="nav-link">📊 Download your data</a>
-                <a href="/logout" class="nav-link">🚪 Logout</a>
+            <div class="account-header">
+                <h1 class="account-username">@{{ session['username'] }}</h1>
+                <div class="account-stats">
+                    <span class="post-count">{{ user_posts|length }} Posts</span>
+                </div>
             </div>
         </div>
 
         <div class="content-area">
-            {% if posts %}
+            {% if user_posts %}
                 <div class="posts-feed">
-                    {% for post in posts %}
+                    {% for post in user_posts %}
                         <div class="post-card">
                             <div class="post-header">
                                 <div class="post-meta">
@@ -69,11 +69,15 @@
             {% else %}
                 <div class="no-posts">
                     <h3>No Posts Yet</h3>
-                    <p>Be the first to share something with the community!</p>
+                    <p>You haven't shared anything with the community yet!</p>
+                    <button class="create-first-post-btn" onclick="document.getElementById('openSpotlight').click()">
+                        Create Your First Post
+                    </button>
                 </div>
             {% endif %}
         </div>
     </div>
+    
     <div class="toast" id="toast">Like toggled!</div>
 
     <div class="spotlight-overlay" id="spotlightOverlay">
@@ -101,6 +105,6 @@
             </div>
         </div>
     </div>
-        <script src="../static/js/home.js"></script>
+    <script src="../static/js/home.js"></script>
 </body>
 </html>

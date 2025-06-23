@@ -450,5 +450,53 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.route('/account')
+def account():
+    if not session.get('logged_in'):
+        flash('You need to log in to view your account.', 'error')
+        return redirect(url_for('login'))
+    
+    username = session.get('username')
+    conn = get_db_connection()
+    
+    current_user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    
+    if not current_user:
+        conn.close()
+        flash('User not found.', 'error')
+        return redirect(url_for('login'))
+    
+    user_posts = conn.execute("""
+        SELECT p.postid, p.posttext, p.created_at, u.username,
+               COUNT(l.id) as like_count
+        FROM posts p 
+        JOIN users u ON p.userid = u.id 
+        LEFT JOIN likes l ON p.postid = l.postid
+        WHERE p.userid = ?
+        GROUP BY p.postid, p.posttext, p.created_at, u.username
+        ORDER BY p.created_at DESC
+    """, (current_user["id"],)).fetchall()
+    
+    posts_with_like_status = []
+    for post in user_posts:
+        like_check = conn.execute("""
+            SELECT id FROM likes WHERE postid = ? AND userid = ?
+        """, (post["postid"], current_user["id"])).fetchone()
+        user_liked = like_check is not None
+        
+        posts_with_like_status.append({
+            'postid': post['postid'],
+            'posttext': post['posttext'],
+            'created_at': post['created_at'],
+            'username': post['username'],
+            'like_count': post['like_count'],
+            'user_liked': user_liked
+        })
+    
+    conn.close()
+    
+    return render_template('account.html', user_posts=posts_with_like_status)
+
+
 if __name__ == '__main__':
     app.run(host=host, port=port)
