@@ -455,16 +455,20 @@ def account():
     if not session.get('logged_in'):
         flash('You need to log in to view your account.', 'error')
         return redirect(url_for('login'))
-    
+
     username = session.get('username')
+    return redirect(url_for('account_with_username', username=username))
+
+@app.route('/account/<username>')
+def account_with_username(username):
     conn = get_db_connection()
+
+    user = conn.execute("SELECT id, username FROM users WHERE username = ?", (username,)).fetchone()
     
-    current_user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
-    
-    if not current_user:
+    if not user:
         conn.close()
         flash('User not found.', 'error')
-        return redirect(url_for('login'))
+        return redirect(url_for('index')) 
     
     user_posts = conn.execute("""
         SELECT p.postid, p.posttext, p.created_at, u.username,
@@ -475,15 +479,22 @@ def account():
         WHERE p.userid = ?
         GROUP BY p.postid, p.posttext, p.created_at, u.username
         ORDER BY p.created_at DESC
-    """, (current_user["id"],)).fetchall()
-    
+    """, (user["id"],)).fetchall()
+
+    user_liked_id = None
+    if session.get('logged_in'):
+        user_liked_id = conn.execute("SELECT id FROM users WHERE username = ?", (session.get('username'),)).fetchone()
+        user_liked_id = user_liked_id["id"] if user_liked_id else None
+
     posts_with_like_status = []
     for post in user_posts:
-        like_check = conn.execute("""
-            SELECT id FROM likes WHERE postid = ? AND userid = ?
-        """, (post["postid"], current_user["id"])).fetchone()
-        user_liked = like_check is not None
-        
+        user_liked = False
+        if user_liked_id:
+            like_check = conn.execute("""
+                SELECT id FROM likes WHERE postid = ? AND userid = ?
+            """, (post["postid"], user_liked_id)).fetchone()
+            user_liked = like_check is not None
+
         posts_with_like_status.append({
             'postid': post['postid'],
             'posttext': post['posttext'],
@@ -492,10 +503,10 @@ def account():
             'like_count': post['like_count'],
             'user_liked': user_liked
         })
-    
+
     conn.close()
     
-    return render_template('account.html', user_posts=posts_with_like_status)
+    return render_template('account.html', user_posts=posts_with_like_status, profile_username=user["username"])
 
 
 if __name__ == '__main__':
