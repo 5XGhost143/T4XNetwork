@@ -14,6 +14,7 @@ with open("config/flask_config.json") as config_file:
 port = config.get("port", 5000)
 host = config.get("host", "0.0.0.0")
 
+
 blue = "\033[34m"
 yellow = "\033[33m"
 white = "\033[37m"
