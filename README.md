@@ -13,7 +13,7 @@ TODO List:
 
 ✓ Backend (100%)
 
-✓ User Profiles (90%)
+✓ User Profiles
 
 ✘ Foryou Page
 
