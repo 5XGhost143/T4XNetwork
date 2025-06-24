@@ -47,18 +47,32 @@
                         <span class="heart-icon">❤️</span>
                         <span class="like-count" id="likeCount">{{ post.like_count }}</span>
                     </button>
+                    <button class="answer-btn" onclick="answerAndRedirect()">Answer</button>
+
                 </div>
             </div>
         </div>
     </div>
+    </div>
 
     <div class="toast" id="toast">Like toggled!</div>
-
     <script>
         let isLiked = {{ 'true' if user_liked else 'false' }};
         let currentLikeCount = {{ post.like_count }};
         const postId = {{ post.postid }};
+        
     </script>
-    <script src="../static/js/post.js"></script>
+<script>
+    function answerAndRedirect() {
+        localStorage.setItem('triggerPlus', 'true');
+        
+        const answerText = `Answer from Post: ${window.location.href} -> `;
+        localStorage.setItem('prefillText', answerText);
+
+        window.location.href = "/home";
+    }
+</script>
+<script src="../static/js/post.js"></script>
+</div>
 </body>
 </html>

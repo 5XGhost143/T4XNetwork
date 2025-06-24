@@ -174,4 +174,10 @@ function showToast(message) {
     }, 3000);
 }
 
+if (localStorage.getItem('triggerPlus') === 'true') {
+    localStorage.removeItem('triggerPlus');
+    document.getElementById('openSpotlight')?.click();
+}
+
+
 updateCharacterCount();

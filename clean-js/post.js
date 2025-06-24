@@ -70,4 +70,19 @@ async function refreshLikeStatus() {
     }
 }
 
+function openAnswerModal() {
+    const overlay = document.getElementById("spotlightOverlay");
+    const urlDisplay = document.getElementById("postUrlDisplay");
+
+    if (overlay && urlDisplay) {
+        overlay.classList.add("show");
+        urlDisplay.textContent = window.location.href;
+    }
+}
+
+function closeAnswerModal() {
+    const overlay = document.getElementById("spotlightOverlay");
+    if (overlay) overlay.classList.remove("show");
+}
+
 refreshLikeStatus();
