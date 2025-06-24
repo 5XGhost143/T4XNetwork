@@ -508,6 +508,28 @@ def account_with_username(username):
     
     return render_template('account.html', user_posts=posts_with_like_status, profile_username=user["username"])
 
+@app.route('/search')
+def search():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    query = request.args.get('q', '').strip()
+    results = []
+
+    if query:
+        conn = get_db_connection()
+        results = conn.execute("""
+            SELECT p.postid, p.posttext, p.created_at, u.username
+            FROM posts p
+            JOIN users u ON p.userid = u.id
+            WHERE p.posttext LIKE ? OR u.username LIKE ?
+            ORDER BY p.created_at DESC
+        """, (f'%{query}%', f'%{query}%')).fetchall()
+        conn.close()
+
+    return render_template('search.html', results=results, query=query)
+
+
 
 if __name__ == '__main__':
     app.run(host=host, port=port)

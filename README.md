@@ -19,6 +19,6 @@ TODO List:
 
 ✓ Modern UI
 
-✘ Search with Posts, User Profiles
+✓ Search with Posts, User Profiles
 
 ✓ Create Posts
