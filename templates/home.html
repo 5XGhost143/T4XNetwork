@@ -43,6 +43,7 @@
             <div class="nav-links">
                 <a href="/datadownload" class="nav-link">📊 Download your data</a>
                 <a href="/logout" class="nav-link">🚪 Logout</a>
+                <a href="#" class="nav-link" onclick="showDeleteModal()">🗑️ Delete Account</a>
             </div>
         </div>
 
@@ -83,6 +84,21 @@
         </div>
     </div>
     <div class="toast" id="toast">Like toggled!</div>
+    <div class="spotlight-overlay" id="deleteAccountOverlay">
+    <div class="spotlight-modal">
+        <div class="spotlight-header">
+            <div class="spotlight-title">Delete Account</div>
+            <div class="spotlight-subtitle">Please confirm your password to delete your account</div>
+        </div>
+        <div class="spotlight-content">
+            <input type="password" id="deletePassword" class="password-input" placeholder="Enter your password">
+            <div class="spotlight-actions">
+                <button class="spotlight-btn cancel" onclick="hideDeleteModal()">Cancel</button>
+                <button class="spotlight-btn post" onclick="confirmDeleteAccount()">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div class="spotlight-overlay" id="spotlightOverlay">
         <div class="spotlight-modal">

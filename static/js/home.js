@@ -174,4 +174,39 @@ function showToast(message) {
     }, 3000);
 }
 
+function showDeleteModal() {
+    document.getElementById('deleteAccountOverlay').classList.add('show');
+}
+
+function hideDeleteModal() {
+    document.getElementById('deleteAccountOverlay').classList.remove('show');
+}
+
+function confirmDeleteAccount() {
+    const password = document.getElementById('deletePassword').value;
+
+    fetch('/delete_account', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('deletePassword').value = '';
+
+            localStorage.clear();
+            sessionStorage.clear();
+
+            alert('Account deleted.');
+            window.location.href = '/login';
+        } else {
+            alert(data.message || 'Error while deleting account');
+            document.getElementById('deletePassword').value = '';
+        }
+    });
+}
+
 updateCharacterCount();

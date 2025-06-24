@@ -212,6 +212,29 @@ def datadownload():
     response.headers['Content-Disposition'] = 'attachment; filename=data.json'
     return response
 
+@app.route('/delete_account', methods=['POST'])
+def delete_account():
+    if not session.get('logged_in'):
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+
+    data = request.get_json()
+    password = data.get('password', '').strip()
+    username = session.get('username')
+
+    conn = get_db_connection()
+    user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+
+    if not user or not check_password_hash(user["password"], password):
+        conn.close()
+        return jsonify({'success': False, 'message': 'Incorrect password'}), 403
+
+    with conn:
+        conn.execute("DELETE FROM users WHERE username = ?", (username,))
+    conn.close()
+    session.clear()
+    return jsonify({'success': True, 'message': 'Account deleted successfully'})
+
+
 
 @app.route('/create_post', methods=['POST'])
 def create_post():
@@ -531,7 +554,7 @@ def account_with_username(username):
     if not user:
         conn.close()
         flash('User not found.', 'error')
-        return redirect(url_for('index')) 
+        return redirect(url_for('homepage')) 
     
     user_posts = conn.execute("""
         SELECT p.postid, p.posttext, p.created_at, u.username,
