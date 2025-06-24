@@ -115,6 +115,7 @@ body {
         0 8px 25px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
+    text-decoration: none;
 }
 
 .sidebar-icon.account:hover {
@@ -747,6 +748,7 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
     margin-bottom: 12px;
+    text-decoration: none;
 }
 
 .sidebar-icon.home:hover {
@@ -774,6 +776,7 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
     margin: 12px 0;
+    text-decoration: none;
 }
 
 .sidebar-icon.search:hover {
