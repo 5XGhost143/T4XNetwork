@@ -619,6 +619,7 @@ body {
     text-decoration: none;
 }
 
+
 .answer-user {
     font-size: 14px;
     font-weight: 600;
@@ -630,6 +631,26 @@ body {
     animation: gradientShift 4s ease-in-out infinite;
     letter-spacing: 0.5px;
     text-decoration: none;
+}
+
+.view-btn {
+    padding: 16px 32px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.view-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 30px rgba(0, 212, 255, 0.2);
+    border-color: var(--neon-blue);
 }
 
 

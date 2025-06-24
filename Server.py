@@ -545,6 +545,45 @@ def account():
     username = session.get('username')
     return redirect(url_for('account_with_username', username=username))
 
+@app.route('/posty')
+def posty():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    username = session.get('username')
+
+    conn = get_db_connection()
+
+    user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    if not user:
+        conn.close()
+        return "<h1>User not found.</h1>"
+
+    user_id = user["id"]
+
+    post = conn.execute("""
+        SELECT p.postid, p.posttext, p.created_at, u.username,
+               COUNT(l.id) AS like_count,
+               EXISTS (
+                   SELECT 1 FROM likes WHERE postid = p.postid AND userid = ?
+               ) AS user_liked
+        FROM posts p
+        JOIN users u ON p.userid = u.id
+        LEFT JOIN likes l ON p.postid = l.postid
+        GROUP BY p.postid
+        ORDER BY RANDOM()
+        LIMIT 1
+    """, (user_id,)).fetchone()
+
+    conn.close()
+
+    if not post:
+        return "<h1>No posts available</h1>"
+
+    return render_template("posty.html", post=post)
+
+
+
 @app.route('/account/<username>')
 def account_with_username(username):
     conn = get_db_connection()

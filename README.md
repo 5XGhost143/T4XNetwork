@@ -15,7 +15,7 @@ TODO List:
 
 ✓ User Profiles
 
-✘ Foryou Page
+✓ Foryou Page (50%) -> ( Need NEXT Button with Cool Swipe Up Animation under Post, Add on Sidebar (Middle) )
 
 ✓ Modern UI
 
