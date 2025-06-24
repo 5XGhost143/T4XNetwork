@@ -174,20 +174,4 @@ function showToast(message) {
     }, 3000);
 }
 
-if (localStorage.getItem('triggerPlus') === 'true') {
-    localStorage.removeItem('triggerPlus');
-
-    document.getElementById('openSpotlight')?.click();
-    const prefillText = localStorage.getItem('prefillText');
-    if (prefillText) {
-        const textarea = document.getElementById('postTextarea');
-        if (textarea) {
-            textarea.value = prefillText;
-            document.getElementById('characterCount').textContent = `${prefillText.length} / 500`;
-        }
-        localStorage.removeItem('prefillText');
-    }
-}
-
-
 updateCharacterCount();

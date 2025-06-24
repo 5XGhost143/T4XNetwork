@@ -70,5 +70,59 @@ async function refreshLikeStatus() {
     }
 }
 
+function answerAndRedirect() {
+    document.getElementById("answerOverlay").classList.add("show");
+}
+
+function closeAnswerModal() {
+    document.getElementById("answerOverlay").classList.remove("show");
+}
+
+const answerTextarea = document.getElementById("answerTextarea");
+const answerCharCount = document.getElementById("answerCharCount");
+
+answerTextarea.addEventListener("input", () => {
+    const len = answerTextarea.value.length;
+    answerCharCount.textContent = `${len} / 500`;
+    answerCharCount.className = "character-count";
+    if (len > 400 && len <= 500) answerCharCount.classList.add("warning");
+    if (len > 500) answerCharCount.classList.add("error");
+});
+
+function submitAnswer() {
+    const text = answerTextarea.value.trim();
+    if (!text) {
+        showMessage("Answer cannot be empty", "error");
+        return;
+    }
+
+    fetch(`/post/${postId}/answer`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ answer: text })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showMessage(data.message, "success");
+
+            answerTextarea.value = "";
+            answerCharCount.textContent = "0 / 500";
+
+            setTimeout(() => location.reload(), 800);
+        } else {
+            showMessage(data.message, "error");
+        }
+    });
+}
+function showMessage(msg, type) {
+    const box = document.getElementById("answerMessageBox");
+    box.textContent = msg;
+    box.className = `message ${type}`;
+    box.style.display = "block";
+}
+
 
 refreshLikeStatus();

@@ -392,6 +392,20 @@ body {
         0 10px 30px rgba(0, 212, 255, 0.1);
 }
 
+.post-text a,
+.answer-text a {
+    color: var(--neon-blue);
+    text-decoration: underline;
+    word-break: break-word;
+    transition: color 0.3s ease;
+}
+
+.post-text a:hover,
+.answer-text a:hover {
+    color: var(--neon-pink);
+    text-decoration: none;
+}
+
 .character-count {
     text-align: right;
     font-size: 12px;

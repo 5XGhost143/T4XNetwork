@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import re
 from datetime import timedelta, datetime
 import json
-from markupsafe import escape
+from markupsafe import escape, Markup
 
 with open("config/flask_config.json") as config_file:
     config = json.load(config_file)
@@ -43,6 +43,17 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
+@app.template_filter('linkify')
+def linkify(text):
+    escaped_text = escape(text) 
+    url_pattern = re.compile(r'(https?://[^\s]+)')
+    linked_text = url_pattern.sub(
+        r'<a href="\1" target="_blank" rel="noopener noreferrer">\1</a>',
+        escaped_text
+    )
+    return Markup(linked_text)
 
 def get_db_connection():
     conn = sqlite3.connect("t4xnetwork_data.db")
@@ -81,6 +92,19 @@ def init_db():
                 UNIQUE(postid, userid)
             )
         """)
+
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS answers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                postid INTEGER NOT NULL,
+                userid INTEGER NOT NULL,
+                answertext TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (postid) REFERENCES posts (postid) ON DELETE CASCADE,
+                FOREIGN KEY (userid) REFERENCES users (id) ON DELETE CASCADE
+            )
+        """)
+
     conn.close()
 
 
@@ -297,10 +321,49 @@ def view_post(postid):
             SELECT id FROM likes WHERE postid = ? AND userid = ?
         """, (postid, current_user["id"])).fetchone()
         user_liked = like_check is not None
+
+    answers = conn.execute("""
+        SELECT a.answertext, a.created_at, u.username
+        FROM answers a
+        JOIN users u ON a.userid = u.id
+        WHERE a.postid = ?
+        ORDER BY a.created_at DESC
+    """, (postid,)).fetchall()
+
     
     conn.close()
     
-    return render_template('post.html', post=post, user_liked=user_liked)
+    return render_template('post.html', post=post, user_liked=user_liked, answers=answers)
+
+@app.route('/post/<int:postid>/answer', methods=['POST'])
+def submit_answer(postid):
+    if not session.get('logged_in'):
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+
+    data = request.get_json()
+    answer_text = data.get('answer', '').strip()
+
+    if not answer_text:
+        return jsonify({'success': False, 'message': 'Answer cannot be empty'}), 400
+
+    if len(answer_text) > 500:
+        return jsonify({'success': False, 'message': 'Answer too long'}), 400
+
+    username = session.get('username')
+    conn = get_db_connection()
+    user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+
+    with conn:
+        conn.execute(
+            "INSERT INTO answers (postid, userid, answertext) VALUES (?, ?, ?)",
+            (postid, user["id"], sanitize_input(answer_text))
+        )
+    conn.close()
+    return jsonify({'success': True, 'message': 'Answer submitted'})
 
 
 @app.route('/toggle_like', methods=['POST'])

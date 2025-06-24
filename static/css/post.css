@@ -16,6 +16,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    text-decoration: none;
 }
 
 body {
@@ -583,6 +584,106 @@ body {
     color: #f87171;
 }
 
+.answers-section {
+    padding: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.answers-title {
+    font-size: 18px;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+}
+
+.answers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.answer-entry {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.answer-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    text-decoration: none;
+}
+
+.answer-user {
+    font-size: 14px;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 4s ease-in-out infinite;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+}
+
+
+.no-answers {
+    text-align: center;
+    padding: 40px;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.no-answers-text {
+    color: var(--text-secondary);
+    font-size: 16px;
+    font-style: italic;
+    line-height: 1.6;
+}
+
+.no-answers-text strong {
+    color: var(--neon-blue);
+    font-style: normal;
+    font-weight: 600;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+.answer-text {
+    font-size: 15px;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+}
+
+.post-text a,
+.post-content a,
+.answer-text a {
+    color: var(--neon-blue);
+    text-decoration: underline;
+    word-break: break-word;
+    transition: color 0.3s ease;
+}
+
+.post-text a:hover,
+.post-content a:hover,
+.answer-text a:hover {
+    color: var(--neon-pink);
+    text-decoration: none;
+}
+
+
 @media (max-width: 768px) {
     .main-content {
         padding: 20px;
@@ -646,4 +747,5 @@ body {
     .toast.show {
         transform: translateY(0);
     }
+
 }
