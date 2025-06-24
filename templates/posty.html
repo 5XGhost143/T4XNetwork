@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T4XNetwork | Post #{{ post.postid }}</title>
-    <link rel="stylesheet" href="../static/css/post.css">
+    <link rel="stylesheet" href="../static/css/posty.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 </head>
@@ -18,11 +18,10 @@
     </div>
 
     <div class="main-content">
-        <div class="header" style="justify-content: center;">
-            <div class="nav-section">
-                <a href="/home" class="back-btn">← Back to Home</a>
-                <div class="post-title">Random Post #{{ post.postid }}</div>
-            </div>
+        <div class="header">
+            <a href="/home" class="back-btn">← Back to Home</a>
+            <div class="post-title">Posty</div>
+            <div class="spacer"></div>
         </div>
 
         <div class="content-area">
@@ -39,14 +38,13 @@
                     <p>{{ post.posttext | linkify }}</p>
                 </div>
 
-<div class="post-actions" style="gap: 30px;">
-    <button class="like-btn" id="likeBtn" onclick="toggleLike()">
-        <span class="heart-icon">❤️</span>
-        <span class="like-count" id="likeCount">{{ post.like_count }}</span>
-    </button>
+                <div class="post-actions">
+                    <button class="like-btn" id="likeBtn" onclick="toggleLike()">
+                        <span class="heart-icon">❤️</span>
+                        <span class="like-count" id="likeCount">{{ post.like_count }}</span>
+                    </button>
 
-    <a href="/post/{{ post.postid }}" class="view-btn">View Full Post</a>
-</div>
+                    <a href="/post/{{ post.postid }}" class="view-btn">View Full Post</a>
                 </div>
             </div>
         </div>
@@ -59,6 +57,6 @@
         let currentLikeCount = {{ post.like_count }};
         const postId = {{ post.postid }};
     </script>
-    <script src="../static/js/post.js"></script>
+    <script src="../static/js/posty.js"></script>
 </body>
 </html>
