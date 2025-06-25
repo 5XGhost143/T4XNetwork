@@ -446,7 +446,52 @@ def toggle_like():
     except Exception as e:
         conn.close()
         return jsonify({'success': False, 'message': 'Error toggling like'}), 500
+    
+@app.route('/api/random_post')
+def get_random_post():
+    if not session.get('logged_in'):
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
 
+    username = session.get('username')
+    conn = get_db_connection()
+
+    user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+
+    user_id = user["id"]
+
+    post = conn.execute("""
+        SELECT p.postid, p.posttext, p.created_at, u.username,
+               COUNT(l.id) AS like_count,
+               EXISTS (
+                   SELECT 1 FROM likes WHERE postid = p.postid AND userid = ?
+               ) AS user_liked
+        FROM posts p
+        JOIN users u ON p.userid = u.id
+        LEFT JOIN likes l ON p.postid = l.postid
+        GROUP BY p.postid
+        ORDER BY RANDOM()
+        LIMIT 1
+    """, (user_id,)).fetchone()
+
+    conn.close()
+
+    if not post:
+        return jsonify({'success': False, 'message': 'No posts available'}), 404
+
+    return jsonify({
+        'success': True,
+        'post': {
+            'postid': post['postid'],
+            'posttext': post['posttext'],
+            'created_at': post['created_at'],
+            'username': post['username'],
+            'like_count': post['like_count'],
+            'user_liked': bool(post['user_liked'])
+        }
+    })
 
 @app.route('/get_like_status/<int:postid>')
 def get_like_status(postid):
