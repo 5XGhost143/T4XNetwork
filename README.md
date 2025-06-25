@@ -15,10 +15,12 @@ TODO List:
 
 ✓ User Profiles
 
-✓ Foryou Page (50%) -> ( Need NEXT Button with Cool Swipe Up Animation under Post, Add on Sidebar (Middle) )
+✓ Foryou Page 
 
 ✓ Modern UI
 
 ✓ Search with Posts, User Profiles
 
 ✓ Create Posts
+
+✗ Random Group Chat with 2 - 5 People
