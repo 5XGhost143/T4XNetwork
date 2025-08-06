@@ -5,22 +5,13 @@ https://ghost143.de
 
 MADE BY 5X Development
 
-TODO List:
+# Why did I archive this Project?
 
-✓ Last Posts in Home
+**Why? are u rlly asking why? one word: "School Project". for me this Project has no use it's completely free u can say it's yours i don't care much tbh.**
 
-✓ Posts Site (url/post/<postid>)
 
-✓ Backend (100%)
+# NOTE
 
-✓ User Profiles
+**This is a School Project and has development under immense time pressure bc I had a shitty Teacher no front to him but he had Zero Clue what Huge Project I was developing..**
 
-✓ Foryou Page 
-
-✓ Modern UI
-
-✓ Search with Posts, User Profiles
-
-✓ Create Posts
-
-✗ Random Group Chat with 2 - 5 People
+**BUT BESIDE THAT HAVE FUN AND IF U REVIVE THIS VERY SHITTY PROJECT AND MAKE A BETTER UI PLEASE WRITE ME ON DISCORD (real.ghost143)**
