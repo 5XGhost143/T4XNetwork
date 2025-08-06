@@ -224,6 +224,10 @@ def delete_account():
     conn = get_db_connection()
     user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
 
+    if username == "showcase":
+        conn.close()e
+        return jsonify({'success': False, 'message': 'Showcase account cannot be deleted'}), 403
+
     if not user or not check_password_hash(user["password"], password):
         conn.close()
         return jsonify({'success': False, 'message': 'Incorrect password'}), 403
