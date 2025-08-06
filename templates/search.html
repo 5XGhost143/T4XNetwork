@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T4XNetwork | Search</title>
+    <link rel="stylesheet" href="../static/css/home.css">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="background"></div>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-icon plus" id="openSpotlight">
+            <span class="plus-icon">+</span>
+        </div>
+
+        <a href="/search" class="sidebar-icon search" id="searchIcon">
+            <span class="search-icon">🔍</span>
+        </a>
+
+        <a href="/posty" class="sidebar-icon posty" id="postyIcon">
+            <span class="posty-icon">🗒️</span>
+        </a>        
+        
+        <div class="sidebar-spacer"></div>
+
+        <a href="https://minigame.ghost143.de" class="sidebar-icon controller" id="controllerIcon">
+            <span class="controller-icon">🎮</span>
+        </a>
+        
+        <a href="/home" class="sidebar-icon home"><span class="home-icon">🏠</span></a>
+        <a href="/account" class="sidebar-icon account"><span class="account-icon">👤</span></a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="welcome-text">Search Posts and Users</div>
+            <form method="GET" action="/search" class="nav-links" style="flex:1;">
+                <input type="text" name="q" placeholder="Search for posts or users..." 
+                       style="flex: 1; padding: 12px 16px; border-radius: 12px; border: none;
+                              background: rgba(255,255,255,0.05); color: white; font-size: 16px;">
+                <button type="submit" class="nav-link">🔍 Search</button>
+            </form>
+        </div>
+
+        <div class="content-area">
+            {% if results %}
+                <div class="posts-feed">
+                    {% for item in results %}
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="post-meta">
+                                    <div class="post-username">@{{ item.username }}</div>
+                                    <div class="post-date">{{ item.created_at }}</div>
+                                </div>
+                                <div class="post-id">ID: {{ item.postid }}</div>
+                            </div>
+                            <div class="post-content">
+                                <p class="post-text">{{ item.posttext }}</p>
+                            </div>
+                            <div class="post-actions">
+                                <a href="/post/{{ item.postid }}" class="view-post-btn">View Full Post</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% elif query %}
+                <div class="no-posts">
+                    <h3>No Results for "{{ query }}"</h3>
+                </div>
+            {% else %}
+                <div class="no-posts">
+                    <h3>Search for something!</h3>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+<div class="spotlight-overlay" id="spotlightOverlay">
+    <div class="spotlight-modal">
+        <div class="spotlight-header">
+            <div class="spotlight-title">Post Creation</div>
+            <div class="spotlight-subtitle">Share your Ideas!</div>
+        </div>
+        <div class="spotlight-content">
+            <div class="message" id="messageBox"></div>
+            <textarea 
+                class="post-textarea" 
+                id="postTextarea" 
+                placeholder="What do you want to share with the community?"
+                maxlength="500"
+            ></textarea>
+            <div class="character-count" id="characterCount">0 / 500</div>
+            <div class="spotlight-actions">
+                <button class="spotlight-btn cancel" id="cancelBtn">Cancel</button>
+                <button class="spotlight-btn post" id="postBtn">
+                    <span class="loading-spinner"></span>
+                    <span class="btn-text">Post</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../static/js/home.js"></script>
+</body>
+</html>

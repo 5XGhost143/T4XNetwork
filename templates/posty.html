@@ -1,0 +1,88 @@
+<!-- templates/posty.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T4XNetwork | Posty</title>
+    <link rel="stylesheet" href="../static/css/posty.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="background"></div>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <a href="/home" class="back-btn">← Back to Home</a>
+            <div class="post-title">Posty</div>
+            <div class="spacer"></div>
+        </div>
+
+        <div class="content-area">
+            <div class="post-wrapper">
+                <div class="post-container" id="currentPost">
+                    <div class="post-header">
+                        <div class="post-meta">
+                            <a href="/account/{{ post.username }}" class="username">@{{ post.username }}</a>
+                            <div class="post-date">{{ post.created_at }}</div>
+                        </div>
+                        <div class="post-id">ID: {{ post.postid }}</div>
+                    </div>
+
+                    <div class="post-content">
+                        <p>{{ post.posttext | linkify }}</p>
+                    </div>
+
+                    <div class="post-actions">
+                        <button class="like-btn" id="likeBtn" onclick="toggleLike()">
+                            <span class="heart-icon">❤️</span>
+                            <span class="like-count" id="likeCount">{{ post.like_count }}</span>
+                        </button>
+
+                        <a href="/post/{{ post.postid }}" class="view-btn">View Full Post</a>
+                    </div>
+                </div>
+
+                <!-- Loading indicator for next post -->
+                <div class="post-container loading-post" id="loadingPost" style="display: none;">
+                    <div class="loading-content">
+                        <div class="loading-spinner"></div>
+                        <p>Loading next post...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Button -->
+            <div class="next-button-container">
+                <button class="next-btn" id="nextBtn" onclick="loadNextPost()">
+                    <span class="next-icon">↑</span>
+                    <span class="next-text">NEXT</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Like toggled!</div>
+
+    <script>
+        let isLiked = {{ 'true' if post.user_liked else 'false' }};
+        let currentLikeCount = {{ post.like_count }};
+        const postId = {{ post.postid }};
+        let currentPostData = {
+            postid: {{ post.postid }},
+            username: "{{ post.username }}",
+            posttext: `{{ post.posttext | replace('`', '\\`') | replace('${', '\\${') }}`,
+            created_at: "{{ post.created_at }}",
+            like_count: {{ post.like_count }},
+            user_liked: {{ 'true' if post.user_liked else 'false' }}
+        };
+    </script>
+    <script src="../static/js/posty.js"></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T4XNetwork | Post #{{ post.postid }}</title>
+    <link rel="stylesheet" href="../static/css/post.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="background"></div>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="nav-section">
+                <a href="/home" class="back-btn">← Back to Home</a>
+                <div class="post-title">Post #{{ post.postid }}</div>
+            </div>
+            <div class="nav-links">
+                <a href="/datadownload" class="nav-link">📊 Download your data</a>
+                <a href="/logout" class="nav-link">🚪 Logout</a>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="post-container">
+                <div class="post-header">
+                    <div class="post-meta">
+                        <a href="/account/{{ post.username }}" class="username">@{{ post.username }}</a>
+                        <div class="post-date">{{ post.created_at }}</div>
+                    </div>
+                    <div class="post-id">ID: {{ post.postid }}</div>
+                </div>
+
+                <div class="post-content">
+                    <p>{{ post.posttext | linkify }}</p>
+                </div>
+
+                <div class="post-actions">
+                    <button class="like-btn" id="likeBtn" onclick="toggleLike()">
+                        <span class="heart-icon">❤️</span>
+                        <span class="like-count" id="likeCount">{{ post.like_count }}</span>
+                    </button>
+                    <button class="answer-btn" onclick="answerAndRedirect()">Comment</button>
+                </div>
+
+                <div class="answers-section">
+                    <h3 class="answers-title">Comments</h3>
+                    <div class="answers-list">
+                        {% if answers %}
+                            {% for answer in answers %}
+                                <div class="answer-entry">
+                                    <div class="answer-meta">
+                                        <a href="/account/{{ answer.username }}" class="answer-user">@{{ answer.username }}</a>
+                                        <span class="answer-time">{{ answer.created_at }}</span>
+                                    </div>
+                                    <div class="answer-text">{{ answer.answertext | linkify }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="answer-entry no-answers">
+                                <div class="no-answers-text">
+                                    <span>No answers yet...</span><br>
+                                    <strong>Be the first one to join the conversation!</strong>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Like toggled!</div>
+
+    <div class="spotlight-overlay" id="answerOverlay">
+        <div class="spotlight-modal">
+            <div class="spotlight-header">
+                <div class="spotlight-title">Comment on Post</div>
+                <div class="spotlight-subtitle">What are your thoughts?</div>
+            </div>
+            <div class="spotlight-content">
+                <div class="message" id="answerMessageBox"></div>
+                <textarea 
+                    class="post-textarea" 
+                    id="answerTextarea" 
+                    placeholder="Write your comment here..."
+                    maxlength="500"
+                ></textarea>
+                <div class="character-count" id="answerCharCount">0 / 500</div>
+                <div class="spotlight-actions">
+                    <button class="spotlight-btn cancel" onclick="closeAnswerModal()">Cancel</button>
+                    <button class="spotlight-btn post" onclick="submitAnswer()">
+                        <span class="loading-spinner"></span>
+                        <span class="btn-text">Send Comment</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLiked = {{ 'true' if user_liked else 'false' }};
+        let currentLikeCount = {{ post.like_count }};
+        const postId = {{ post.postid }};
+    </script>
+    <script src="../static/js/post.js"></script>
+</body>
+</html>
