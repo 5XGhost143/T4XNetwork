@@ -152,7 +152,7 @@ def on_player_move(data):
     }, room=player.room, include_self=False)
 
 @socketio.on('player_shoot')
-def on_player_shoot():
+def on_player_shoot(data):
     if request.sid not in players:
         return
     
@@ -164,7 +164,11 @@ def on_player_shoot():
     
     player.last_shot = current_time
     
-    bullet = Bullet(player.x, player.y, player.angle, request.sid)
+    x = data.get('x', player.x)
+    y = data.get('y', player.y)
+    angle = data.get('angle', player.angle)
+    
+    bullet = Bullet(x, y, angle, request.sid)
     bullets[bullet.id] = bullet
     
     emit('bullet_fired', {
@@ -177,7 +181,6 @@ def on_player_shoot():
     }, room=player.room)
 
 def update_bullets():
-    """Update bullet positions and check for collisions"""
     bullets_to_remove = []
     
     for bullet_id, bullet in bullets.items():
